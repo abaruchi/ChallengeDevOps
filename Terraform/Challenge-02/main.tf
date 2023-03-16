@@ -74,6 +74,7 @@ resource "aws_route_table_association" "public_1_rt_b" {
   route_table_id = aws_route_table.public_rt-10_0_0_0-16.id
 }
 
+# Security Group used on EC2 instance
 resource "aws_security_group" "web_sg" {
   name   = "HTTP, HTTPS, LARAVEL, MySQL and SSH"
   vpc_id = aws_vpc.vpc-10_0_0_0-16.id
@@ -99,6 +100,7 @@ resource "aws_security_group" "web_sg" {
   }
 }
 
+# Security Group used on DB/RDS
 resource "aws_security_group" "db_sg" {
   name   = "MySQL_RDS"
   vpc_id = aws_vpc.vpc-10_0_0_0-16.id
@@ -117,6 +119,7 @@ resource "aws_security_group" "db_sg" {
   }
 }
 
+# Security Group used on LB Listener
 resource "aws_security_group" "listener_sg" {
   name   = "HTTP"
   vpc_id = aws_vpc.vpc-10_0_0_0-16.id
@@ -170,6 +173,7 @@ resource "aws_instance" "web_instance" {
   }
 }
 
+## DB Configuration
 resource "aws_db_subnet_group" "db_subnet_group" {
   name       = "db_subnet_group"
 
@@ -201,14 +205,13 @@ resource "aws_db_instance" "db_rds" {
   }
 }
 
-## ALB Configurations
+## Application LB Configuration
 resource "aws_lb" "appl_lb" {
   name               = "ApplLB"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.listener_sg.id]
   subnets            = [aws_subnet.subnet-10_0_10_0-24.id, aws_subnet.subnet-10_0_20_0-24.id]
-  enable_cross_zone_load_balancing = "true"
   tags = {
     "Name" : "APPL-LB-DNX-challenge-02"
   }
